@@ -12,10 +12,15 @@ class View
 
 
 
-    public static function render($view)
+    public static function render($view, $vars = [])
     {
         $contentView = self::getContentView($view);
+
+        $keys = array_keys($vars);
+        $keys = array_map(function ($item) {
+            return '{{'.$item.'}}';
+        }, $keys);
       
-        return $contentView;
+        return str_replace($keys, array_values($vars), $contentView);
     }
 }

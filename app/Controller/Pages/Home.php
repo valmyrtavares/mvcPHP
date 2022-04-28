@@ -4,13 +4,16 @@ namespace App\Controller\Pages;
 
 use \App\Utils\View;
 
-class Home
+class Home extends Page
 {
     public static function getHome()
     {
-        return View::render('pages/home', [
+        $content =  View::render('pages/home', [
             'name' => 'Valmyr Tavares',
-            'description' => "Canal do youtube: http://youtube.com.br/oficial"
+            'description' => "Canal do youtube: http://youtube.com.br/oficial",
+            'site' => "www.valmyrtavares.com.br"
         ]);
+
+        return parent::getPage('WDEV', $content);
     }
 }

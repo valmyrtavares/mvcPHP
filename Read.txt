@@ -1,0 +1,4 @@
+Estamos a 36:27 da https://www.youtube.com/watch?v=7fxguLAebl4&t=1037s que é a segunda aula e tudo está
+funcioanando como deveria, apesar de que essa a primeira tentativa de fazer funcionar o 
+mvc. Estou entendendo pouco e me concentrando em fazer funcionar igual ao video. Até aqui
+está tudo ok, mas não entendi qual é o lado debaixo e o lado de cima.

@@ -1,7 +1,5 @@
 <?php
 
-
-
 namespace App\Http;
 
 class Response
@@ -27,6 +25,25 @@ class Response
 
     public function addHeader($key, $value)
     {
-        $this->header[$key]= $value;
+        $this->headers[$key]= $value;
+    }
+
+    private function sendHeaders()
+    {
+        http_response_code($this->httpCode);
+
+        foreach ($this->headers as $key=>$value) {
+            header($key. ': ' .$value);
+        }
+    }
+
+    public function sendResponse()
+    {
+        $this->sendHeaders();
+        switch ($this->contentType) {
+            case 'text/html':
+                echo $this->content;
+                exit;
+        }
     }
 }

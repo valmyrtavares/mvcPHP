@@ -15,3 +15,5 @@ $obRouter->get('/', [
         return new Response(200, Home::getHome());
     }
 ]);
+
+$obRouter->run()->sendResponse();

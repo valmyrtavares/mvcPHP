@@ -2,3 +2,6 @@ Estamos a 36:27 da https://www.youtube.com/watch?v=7fxguLAebl4&t=1037s que é a 
 funcioanando como deveria, apesar de que essa a primeira tentativa de fazer funcionar o 
 mvc. Estou entendendo pouco e me concentrando em fazer funcionar igual ao video. Até aqui
 está tudo ok, mas não entendi qual é o lado debaixo e o lado de cima.
+Esse projeto está em um ponto importante em que o router já está pronto o htaccess funciona dando erro 401 
+quando coloco uma pagina que não existe mas na raiz carrega a home. Está no fim mas não está porque parte do 
+projeto eu ainda não entendo direito. Mas como é um bom momento prefiro subir e ter essa referencia montada

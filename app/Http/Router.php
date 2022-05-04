@@ -7,12 +7,13 @@ use \Exception;
 
 class Router
 {
+    //url completa do projeto
     private $url = '';
-
+    // É o que é comum a todas as rotas. Nome do projeto
     private $prefix = '';
-
+    //Rotas que serão adicionadas no projeto que tem que reponder
     private $routes = [];
-
+    //é uma instancia do request. Que será instanciada
     private $request = [];
 
     public function __construct($url)
@@ -39,7 +40,7 @@ class Router
             }
         }
 
-        $patternRoute = '/' .str_replace('/', '\/', $route). '$';
+        $patternRoute = '/^' .str_replace('/', '\/', $route). '$/';
 
         $this->routes[$patternRoute][$method] = $params;
     }
@@ -50,14 +51,30 @@ class Router
         return $this->addRoute('GET', $route, $params);
     }
 
+    public function post($route, $params = [])
+    {
+        return $this->addRoute('POST', $route, $params);
+    }
+
+    public function put($route, $params = [])
+    {
+        return $this->addRoute('PUT', $route, $params);
+    }
+
+    public function delete($route, $params = [])
+    {
+        return $this->addRoute('DELETE', $route, $params);
+    }
+
     private function getUri()
     {
         //URI da request
         $uri = $this->request->getUri();
+      
 
         //Fatia a uri com o prefixo
-        $xUri = strlen($this->prefix)? explode($this->prefix, $uri):[$uri];
-        //Retorna a uri sem prefixo
+        $xUri = strlen($this->prefix)? explode($this->prefix, $uri):[$uri];        //Retorna a uri sem prefixo
+       
         return end($xUri);
     }
 
@@ -67,11 +84,16 @@ class Router
        
         $httpMethod = $this->request->getHttpMethod();
        
+       
         foreach ($this->routes as $patternRoute=>$methods) {
             //VERIFICA SE A ROTA BATE COM O PADRÃO
+
+           
             if (preg_match($patternRoute, $uri)) {
+                
                 //VERIFICA O METODO
                 if ($methods[$httpMethod]) {
+                  
                     //Retorno dos parametros das rotas
                     return $methods[$httpMethod];
                 }
@@ -88,9 +110,13 @@ class Router
             //Obtem a rota atual
             $route = $this->getRoute();
 
-            echo "<pre>";
-            print_r($route);
-            //   throw new Exception("Página não encontrada", 1);
+            if (!isset($route['controller'])) {
+                throw  new Exception('A url não pode ser processada', 500);
+            }
+            $args = [];
+            return call_user_func_array($route['controller'], $args);
+          
+            throw new Exception("Página não encontrada", 1);
         } catch (Exception $e) {
             return new Response($e->getCode(), $e->getMessage());
         }

@@ -4,6 +4,7 @@ namespace App\Http;
 
 use \Closure;
 use \Exception;
+use \ReflectionFunction; 
 
 class Router
 {
@@ -18,31 +19,56 @@ class Router
 
     public function __construct($url)
     {
-        $this->request = new Request();
+        $this->request = new Request();      
         $this->url = $url;
         $this->setPrefix();
     }
 
     private function setPrefix()
     {
+        //Pega a url que é http://localhost/mvcPHP
         $parseUrl = parse_url($this->url);
+        //E transforma em 
+            // Array
+            // (
+            //     [scheme] => http
+            //     [host] => localhost
+            //     [path] => /mvcPHP
+            // ) através do parse_url       
 
         $this->prefix = $parseUrl['path'] ?? '';
+        //E transforma em /mvcPHP pois ele é o path
+      
     }
 
     private function addRoute($method, $route, $params = [])
     {
+       
         foreach ($params as $key=>$value) {
+       
             if ($value instanceof Closure) {
-                $params['controller'] = $value;
+                $params['controller'] = $value;             
                 unset($params[$key]);
                 continue;
             }
         }
 
-        $patternRoute = '/^' .str_replace('/', '\/', $route). '$/';
+        //VARIAVEIS DA ROTA
+        $params['variables'] = [];
+
+        //PADRÃO DE VALIDAÇÃO DAS VARIAVEIS DAS ROTAS
+        $patternVariable = '/{(.*?)}/';
+        if (preg_match_all($patternVariable, $route, $matches)) {
+           $route = preg_replace($patternVariable, '(.*?)', $route);
+           $params['variables'] = $matches[1];
+        }
+
+        $patternRoute = '/^' .str_replace('/', '\/', $route). '$/';        
+            
 
         $this->routes[$patternRoute][$method] = $params;
+       
+        
     }
 
 
@@ -69,31 +95,63 @@ class Router
     private function getUri()
     {
         //URI da request
-        $uri = $this->request->getUri();
-      
+        $uri = $this->request->getUri();   
+        //retorna /mvcPHP/   
 
+        
+        //print_r($uri);  /mvcPHP
+        
+        //print_r($this->prefix); /mvcPHP/
+        
+        
         //Fatia a uri com o prefixo
         $xUri = strlen($this->prefix)? explode($this->prefix, $uri):[$uri];        //Retorna a uri sem prefixo
-       
+        
+        // print_r($xUri); Array
+        // (
+        //     [0] => 
+        //     [1] => /
+        // )        
+        
         return end($xUri);
+        //print_r(end($xUri));  return  /  ou /sobre
     }
 
     private function getRoute()
-    {
+    { 
         $uri = $this->getUri();
+        //retonrna  o que vem na rota pode ser /   ou /about
+          
+     
        
-        $httpMethod = $this->request->getHttpMethod();
+        $httpMethod = $this->request->getHttpMethod();       
+        //print_r($httpMethod); get     
        
+     
        
         foreach ($this->routes as $patternRoute=>$methods) {
             //VERIFICA SE A ROTA BATE COM O PADRÃO
 
            
-            if (preg_match($patternRoute, $uri)) {
+        //print_r($this->routes);
+      
+
+       
+            if (preg_match($patternRoute, $uri, $matches)) {
                 
                 //VERIFICA O METODO
-                if ($methods[$httpMethod]) {
+                if (isset($methods[$httpMethod])) {
                   
+                    unset($matches[0]);
+
+                    //VARIÁVEIS PROCESSADAS
+                    $keys = $methods[$httpMethod]['variables'];
+                    $methods[$httpMethod]['variables']= array_combine($keys, $matches);
+                    $methods[$httpMethod]['variables']['request'] = $this->request;                   
+
+                    //CHAVES
+                    $keys = $methods[$httpMethod]['variables'];
+
                     //Retorno dos parametros das rotas
                     return $methods[$httpMethod];
                 }
@@ -105,16 +163,28 @@ class Router
 
     public function run()
     {
-        try {
-
+        
+        try { 
             //Obtem a rota atual
-            $route = $this->getRoute();
-
+            $route = $this->getRoute(); 
+            
             if (!isset($route['controller'])) {
+               
                 throw  new Exception('A url não pode ser processada', 500);
             }
+           
             $args = [];
-            return call_user_func_array($route['controller'], $args);
+            
+            $reflection = new ReflectionFunction($route['controller']);
+          
+            foreach($reflection->getParameters() as $parameter){               
+                $name = $parameter->getName();
+              $args[$name] = $route['variables'][$name] ?? '';
+
+            }
+
+          return  call_user_func_array($route['controller'], $args);
+          
           
             throw new Exception("Página não encontrada", 1);
         } catch (Exception $e) {

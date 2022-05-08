@@ -6,7 +6,7 @@ class View
     private static $vars = [];
 
     public static function init($vars = [])
-    {
+    {       
         self::$vars = $vars;
     }
 

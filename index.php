@@ -8,7 +8,7 @@ use \App\Http\Request;
 
 
 
-define('URL', 'http://localhost/mvcphp');
+define('URL', 'http://localhost/mvcPHP');
 
 //DEFINE VALOR PADRÃO DAS VARIÁVIS
 View::init([

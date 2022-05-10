@@ -43,8 +43,17 @@ class Router
 
     private function addRoute($method, $route, $params = [])
     {
+        // echo '<pre>';
+        // print_r($method);
+        // echo '<br>';
+        // print_r($route);
+        // echo '<br>';
+        // print_r($params);
+        // echo '<br>';
+        // exit;
        
-        foreach ($params as $key=>$value) {
+        foreach ($params as $key=>$value) {           
+            
        
             if ($value instanceof Closure) {
                 $params['controller'] = $value;             
@@ -52,21 +61,54 @@ class Router
                 continue;
             }
         }
+        //Esse foreach subtitui a key númerica por um controller      
+        
 
         //VARIAVEIS DA ROTA
         $params['variables'] = [];
 
         //PADRÃO DE VALIDAÇÃO DAS VARIAVEIS DAS ROTAS
         $patternVariable = '/{(.*?)}/';
+       
         if (preg_match_all($patternVariable, $route, $matches)) {
+            // echo '<pre>';
+            // print_r($patternVariable);
+            // echo '<br>';
+            // print_r($route);
+            // echo '<br>';
+            // print_r($matches);
+            // echo 'FIM DA PRIMEIRA PARTE';
+            // echo '<br>';
            $route = preg_replace($patternVariable, '(.*?)', $route);
+        //    echo '<pre>';
+        //    print_r($patternVariable);
+        //    echo '<br>';
+        //    print_r($route);       
+        //    echo '<br>';  
+           
            $params['variables'] = $matches[1];
+        //    echo 'FIM DA SEGUNDA PARTE';
+        //    echo '<br>';
+        //    print_r( $params['variables']);          
+        //    echo '<br>';
+        //    exit;
         }
 
-        $patternRoute = '/^' .str_replace('/', '\/', $route). '$/';        
+        $patternRoute = '/^' .str_replace('/', '\/', $route). '$/';    
+        
+        // echo 'FIM DA TERCEIRA PARTE';
+        // echo '<br>';
+        // print_r($patternRoute); 
+                  
+     
             
 
         $this->routes[$patternRoute][$method] = $params;
+
+        // echo 'FIM DA QUARTA PARTE';
+        // echo '<br>';
+        // print_r($this->routes[$patternRoute][$method]); 
+        //      exit; 
        
         
     }
@@ -75,11 +117,15 @@ class Router
     public function get($route, $params = [])
     {
         return $this->addRoute('GET', $route, $params);
+        // echo  'Até aqui';
+        // print_r($this->addRoute('GET', $route, $params)); 
+        // exit; 
     }
 
     public function post($route, $params = [])
     {
         return $this->addRoute('POST', $route, $params);
+      
     }
 
     public function put($route, $params = [])
